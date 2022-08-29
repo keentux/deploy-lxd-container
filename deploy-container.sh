@@ -314,26 +314,6 @@ function container_exec_script() {
     fi
 }
 
-# function container_lxd_init() {
-#     # Installing openssh
-#     lxc exec ${CONTAINER_NAME} -- zypper install --no-confirm openssh vim
-#     lxc exec ${CONTAINER_NAME} -- systemctl start sshd
-#     lxc exec ${CONTAINER_NAME} -- systemctl enable sshd
-
-#     # Creating group whell and add sudoers rules
-#     lxc exec ${CONTAINER_NAME} -- sh -c "echo \"%wheel ALL=(ALL:ALL) ALL\" > /etc/sudoers.d/wheel"
-#     lxc exec ${CONTAINER_NAME} -- sed -i 's/Defaults targetpw   # ask for the password of the target user i.e. root/#Defaults targetpw/g' /etc/sudoers
-#     lxc exec ${CONTAINER_NAME} -- sed -i 's/ALL   ALL=(ALL) ALL   # WARNING! Only use this together with^*/#ALL   ALL=(ALL) ALL/g' /etc/sudoers
-#     lxc exec ${CONTAINER_NAME} -- groupadd wheel
-#     # Create user devel
-#     local user_id=$(id -u)
-#     lxc exec ${CONTAINER_NAME} -- useradd --create-home --uid $user_id --password devel devel
-#     lxc exec ${CONTAINER_NAME} -- usermod -aG wheel devel
-#     lxc exec ${CONTAINER_NAME} -- sh -c "echo -e \"devel\ndevel\" | passwd devel"
-
-#     echo "You can now connect to the container thanks: 'ssh devel@$(get_container_ip)'"
-# }
-
 #######################################################################
 #                           FUNCTIONS                                 #
 #######################################################################
