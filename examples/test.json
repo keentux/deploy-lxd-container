@@ -1,0 +1,18 @@
+{
+    "containers": [
+        {
+            "name": "container-tumbleweed",
+            "distro":"opensuse",
+            "release":"tumbleweed",
+            "arch":"amd64",
+            "storage": "default",
+            "packages": [
+                "openssh"
+            ],
+            "commands": [
+                "03_start_ssh",
+                "05_create_user"
+            ]
+        }
+    ]
+}
