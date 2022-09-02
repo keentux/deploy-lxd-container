@@ -265,6 +265,30 @@ function container_install_packages() {
     done
 }
 
+###
+# Mount a folder to a container
+# ARGUMENTS:
+#   1. container name
+#   2. mount uid
+#   3. mount path from
+#   4. mount path to
+# OUTPUTS:
+#   status 
+# RETURN:s tomount
+#   exit 0 in success, 1 otherwise
+###
+function container_mount_path(){
+    if [ $# -lt 4 ]; then
+        echo_error "Wrong number of arguments"
+        return 1;
+    fi
+    if [ -d "$3" ]; then 
+        echo_info "Will mount $3 -> $4 in $1 ($2)"
+        lxc config device add $1 $2 disk source="$3" path="$4"
+    fi
+    return 0
+}
+
 # Execute one of the sript in tasks.d
 # ARGUMENTS:
 #   1. container name
@@ -369,6 +393,7 @@ function parse_config_file() {
         local container_distro=$(jq ".containers[$index].distro" $CONFIG_PATH | tr -d '"')
         local container_release=$(jq ".containers[$index].release" $CONFIG_PATH | tr -d '"')
         local container_arch=$(jq ".containers[$index].arch" $CONFIG_PATH | tr -d '"')
+        local container_mounts_length=$(jq -r  ".containers[$index].mounts | length" $CONFIG_PATH)
         local container_packages=$(jq -r  ".containers[$index].packages[]" $CONFIG_PATH | tr -d '"')
         local container_cmds=$(jq -r  ".containers[$index].commands[]" $CONFIG_PATH)
         echo_info "Deploying container $container_name (storage=$container_storage) ..."
@@ -384,6 +409,17 @@ function parse_config_file() {
             # Installing packages
             container_install_packages $container_name $container_distro $container_packages
             [ $? -eq 1 ] && echo_warning "Some packets are not installed"
+            # Mount folders
+            for ((mount_index=0; cmd_index<$container_mounts_length; cmd_index++))
+            do
+                local container_mount_uid=$(jq -r  ".containers[$index].mounts[$mount_index].uid" $CONFIG_PATH | tr -d '"')
+                local container_mount_from=$(jq -r  ".containers[$index].mounts[$mount_index].from" $CONFIG_PATH | tr -d '"')
+                local container_mount_to=$(jq -r  ".containers[$index].mounts[$mount_index].to" $CONFIG_PATH | tr -d '"')
+                container_mount_path $container_name \
+                    $container_mount_uid \
+                    $container_mount_from \
+                    $container_mount_to
+            done
             # Run commands
             local commands_length=$(jq ".containers[$index].commands | length" $CONFIG_PATH)
             for ((cmd_index=0; cmd_index<$commands_length; cmd_index++))

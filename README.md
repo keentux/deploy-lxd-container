@@ -34,6 +34,13 @@ example:
             "packages": [
                 "openssh"
             ],
+            "mounts":[
+                {
+                    "uid": "uid-of-the-mount",
+                    "from": "/path/to/folder/to/mount",
+                    "to": "/path/to/mounted/folder"
+                }
+            ],
             "commands": [
                 "03_start_ssh",
                 "05_create_user"
@@ -50,6 +57,10 @@ example:
   * **arh**: container OS Architecture
   * **storage**: lxc storage to use (default: default)
   * **packages**: list of packages to insstall
+  * **mounts**: list of mount device JSON
+    * **uid**: uid of the device
+    * **from**: folder to mount in the container
+    * **to**:folder to create in the container
   * **commands**: List of scripts to execute in the container deployed
 
 For list of potential container images see: <https://uk.lxd.images.canonical.com/>
