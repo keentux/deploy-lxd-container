@@ -1,7 +1,8 @@
 {
+    "prefix": "ctn-test-",
     "containers": [
         {
-            "name": "container-test-debian",
+            "name": "debian-bullseye",
             "distro":"debian",
             "release":"bullseye",
             "arch":"amd64",
@@ -22,7 +23,7 @@
             ]
         },
         {
-            "name": "container-test-centos",
+            "name": "centos-stream",
             "distro":"centos",
             "release":"9-Stream",
             "arch":"amd64",
@@ -43,7 +44,7 @@
             ]
         },
         {
-            "name": "container-test-suse",
+            "name": "suse-tumbleweed",
             "distro":"opensuse",
             "release":"tumbleweed",
             "arch":"amd64",

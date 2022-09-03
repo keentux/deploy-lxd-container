@@ -367,10 +367,11 @@ function get_os_name() {
 ###
 function parse_config_file() {
     local result=0
+    local prefix=$(jq ".prefix" $CONFIG_PATH | tr -d '"' )
     local containers_length=$(jq ".containers | length" $CONFIG_PATH)
     for ((index=0; index<$containers_length; index++))
     do
-        local container_name=$(jq ".containers[$index].name" $CONFIG_PATH | tr -d '"')
+        local container_name=$prefix$(jq ".containers[$index].name" $CONFIG_PATH | tr -d '"')
         local container_storage=$(jq ".containers[$index].storage" $CONFIG_PATH | tr -d '"')
         local container_distro=$(jq ".containers[$index].distro" $CONFIG_PATH | tr -d '"')
         local container_release=$(jq ".containers[$index].release" $CONFIG_PATH | tr -d '"')
