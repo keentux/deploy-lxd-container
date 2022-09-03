@@ -18,5 +18,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # start and enbale ssh service
-lxc exec ${1} -- systemctl start sshd
-lxc exec ${1} -- systemctl enable sshd
+case "$2" in
+    $CONTAINER_DISTRO_SUSE)
+        lxc exec ${1} -- systemctl start sshd
+        lxc exec ${1} -- systemctl enable sshd
+        ;;
+    $CONTAINER_DISTRO_DEBIAN | $CONTAINER_DISTRO_UBUNTU)
+        lxc exec ${1} -- systemctl start ssh
+        lxc exec ${1} -- systemctl enable ssh
+        ;;
+    $CONTAINER_DISTRO_CENTOS | $CONTAINER_DISTRO_FEDORA)
+        lxc exec ${1} -- systemctl start sshd
+        lxc exec ${1} -- systemctl enable sshd
+        ;;
+    *)
+        echo_error "Unknown distro to start ssh services"
+        ;;
+esac

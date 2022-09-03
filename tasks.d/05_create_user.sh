@@ -17,14 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Creating group whell and add sudoers rules
-lxc exec ${1} -- sh -c "echo \"%wheel ALL=(ALL:ALL) ALL\" > /etc/sudoers.d/wheel"
-lxc exec ${1} -- sed -i 's/Defaults targetpw   # ask for the password of the target user i.e. root/#Defaults targetpw/g' /etc/sudoers
-lxc exec ${1} -- sed -i 's/ALL   ALL=(ALL) ALL   # WARNING! Only use this together with^*/#ALL   ALL=(ALL) ALL/g' /etc/sudoers
-lxc exec ${1} -- groupadd wheel
-# Create user devel
 local user_id=$(id -u)
-lxc exec ${1} -- sh -c "[ ! -f /etc/nsswitch.conf ] && [ -f /usr/etc/nsswitch.conf ] && ln -s /usr/etc/nsswitch.conf /etc/nsswitch.conf"
-lxc exec ${1} -- useradd devel --home /home/devel --create-home --uid $user_id --groups wheel --gid wheel
-lxc exec ${1} -- usermod -aG wheel devel
-lxc exec ${1} -- sh -c "echo -e \"devel\ndevel\" | passwd devel"
+case "$2" in
+    $CONTAINER_DISTRO_SUSE)
+        # Creating group whell and add sudoers rules
+        lxc exec ${1} -- sh -c "echo \"%wheel ALL=(ALL:ALL) ALL\" > /etc/sudoers.d/wheel"
+        lxc exec ${1} -- sed -i 's/Defaults targetpw   # ask for the password of the target user i.e. root/#Defaults targetpw/g' /etc/sudoers
+        lxc exec ${1} -- sed -i 's/ALL   ALL=(ALL) ALL   # WARNING! Only use this together with^*/#ALL   ALL=(ALL) ALL/g' /etc/sudoers
+        lxc exec ${1} -- groupadd wheel
+        # Create user devel
+        lxc exec ${1} -- sh -c "[ ! -f /etc/nsswitch.conf ] && [ -f /usr/etc/nsswitch.conf ] && ln -s /usr/etc/nsswitch.conf /etc/nsswitch.conf"
+        lxc exec ${1} -- useradd devel --home /home/devel --create-home --uid $user_id --groups wheel --gid wheel
+        lxc exec ${1} -- usermod -aG wheel devel
+        lxc exec ${1} -- sh -c "echo -e \"devel\ndevel\" | passwd devel"
+        ;;
+    $CONTAINER_DISTRO_DEBIAN | $CONTAINER_DISTRO_UBUNTU)
+        lxc exec ${1} -- adduser devel --home /home/devel --uid 1000 --ingroup sudo --disabled-password --gecos ""
+        lxc exec ${1} -- sh -c 'echo "devel\ndevel" | passwd devel'
+        ;;
+    $CONTAINER_DISTRO_CENTOS | $CONTAINER_DISTRO_FEDORA)
+        lxc exec ${1} -- useradd devel --home /home/devel --create-home --uid $user_id --groups wheel --gid wheel
+        lxc exec ${1} -- sh -c "echo -e \"devel\ndevel\" | passwd devel"
+        ;;
+    *)
+        echo_error "Unknown distro to start ssh services"
+        ;;
+esac

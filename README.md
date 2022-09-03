@@ -83,3 +83,6 @@ lxc exec ${1} -- $custom_cmd_2
 ```
 
 And put the script in the folder `tasks.d/`
+
+* `$1` -> container instance name
+* `$2` -> container distribution

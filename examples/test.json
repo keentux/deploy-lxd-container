@@ -1,7 +1,49 @@
 {
     "containers": [
         {
-            "name": "container-test",
+            "name": "container-test-debian",
+            "distro":"debian",
+            "release":"bullseye",
+            "arch":"amd64",
+            "storage": "default",
+            "mounts": [
+                {
+                    "uid": "tmp",
+                    "from": "/tmp",
+                    "to": "/home/devel/tmp"
+                }
+            ],
+            "packages": [
+                "openssh-server"
+            ],
+            "commands": [
+                "03_start_ssh",
+                "05_create_user"
+            ]
+        },
+        {
+            "name": "container-test-centos",
+            "distro":"centos",
+            "release":"9-Stream",
+            "arch":"amd64",
+            "storage": "default",
+            "mounts": [
+                {
+                    "uid": "tmp",
+                    "from": "/tmp",
+                    "to": "/home/devel/tmp"
+                }
+            ],
+            "packages": [
+                "openssh-server"
+            ],
+            "commands": [
+                "03_start_ssh",
+                "05_create_user"
+            ]
+        },
+        {
+            "name": "container-test-suse",
             "distro":"opensuse",
             "release":"tumbleweed",
             "arch":"amd64",

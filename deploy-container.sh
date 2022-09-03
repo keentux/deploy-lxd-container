@@ -292,23 +292,25 @@ function container_mount_path(){
 # Execute one of the sript in tasks.d
 # ARGUMENTS:
 #   1. container name
-#   2. script name
+#   2. Container distro
+#   3. script name
 # OUTPUTS:
 #   status 
 # RETURN:
 #   exit 0 in success, 1 otherwise
 ###
 function container_exec_script() {
-    if [ $# -ne 2 ]; then
+    if [ $# -ne 3 ]; then
         echo_error "Wrong number of arguments"
         return 1;
     fi
     local container_name="$1"
-    local script="$2.sh"
+    local container_distro="$2"
+    local script="$3.sh"
     local script_path="$(dirname -- "$0")/tasks.d/$script"
-    echo "execute script: $script_path"
+    echo_info "execute script: $script_path"
     if [ -f $script_path ]; then
-        . $script_path $container_name
+        . $script_path $container_name $container_distro
     else 
         echo_error "Script file missing ($script_path)"
     fi
@@ -389,6 +391,14 @@ function parse_config_file() {
             # Installing packages
             container_install_packages $container_name $container_distro $container_packages
             [ $? -eq 1 ] && echo_warning "Some packets are not installed"
+            # Run commands
+            local commands_length=$(jq ".containers[$index].commands | length" $CONFIG_PATH)
+            for ((cmd_index=0; cmd_index<$commands_length; cmd_index++))
+            do
+                local cmd="$(jq ".containers[$index].commands[$cmd_index]" $CONFIG_PATH)"
+                cmd=${cmd:1:-1} # Remove firt and last '"'
+                container_exec_script $container_name $container_distro "$cmd"
+            done
             # Mount folders
             for ((mount_index=0; cmd_index<$container_mounts_length; cmd_index++))
             do
@@ -399,14 +409,6 @@ function parse_config_file() {
                     $container_mount_uid \
                     $container_mount_from \
                     $container_mount_to
-            done
-            # Run commands
-            local commands_length=$(jq ".containers[$index].commands | length" $CONFIG_PATH)
-            for ((cmd_index=0; cmd_index<$commands_length; cmd_index++))
-            do
-                local cmd="$(jq ".containers[$index].commands[$cmd_index]" $CONFIG_PATH)"
-                cmd=${cmd:1:-1} # Remove firt and last '"'
-                container_exec_script $container_name "$cmd"
             done
 
         fi
