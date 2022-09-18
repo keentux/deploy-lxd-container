@@ -289,6 +289,28 @@ function container_mount_path(){
     return 0
 }
 
+###
+# Forward port from host to containre
+# ARGUMENTS:
+#   1. container name
+#   2. proxy uid
+#   3. proxy listen port
+#   4. proxy container port
+# OUTPUTS:
+#   status 
+# RETURN:s tomount
+#   exit 0 in success, 1 otherwise
+###
+function container_proxy_port() {
+    if [ $# -lt 4 ]; then
+        echo_error "Wrong number of arguments"
+        return 1;
+    fi
+    echo_info "Will proxy port $3 to container port $4 in $1 ($2)"
+    lxc config device add $1 $2 proxy listen="tcp:0.0.0.0:$3" connect="tcp:127.0.0.1:$4"
+    return 0 
+}
+
 # Execute one of the sript in tasks.d
 # ARGUMENTS:
 #   1. container name
@@ -377,6 +399,7 @@ function parse_config_file() {
         local container_release=$(jq ".containers[$index].release" $CONFIG_PATH | tr -d '"')
         local container_arch=$(jq ".containers[$index].arch" $CONFIG_PATH | tr -d '"')
         local container_mounts_length=$(jq -r  ".containers[$index].mounts | length" $CONFIG_PATH)
+        local container_proxy_length=$(jq -r  ".containers[$index].proxy | length" $CONFIG_PATH)
         local container_packages=$(jq -r  ".containers[$index].packages[]" $CONFIG_PATH | tr -d '"')
         local container_cmds=$(jq -r  ".containers[$index].commands[]" $CONFIG_PATH)
         echo_info "Deploying container $container_name (storage=$container_storage) ..."
@@ -392,6 +415,14 @@ function parse_config_file() {
             # Installing packages
             container_install_packages $container_name $container_distro $container_packages
             [ $? -eq 1 ] && echo_warning "Some packets are not installed"
+            # Established proxy
+            for ((proxy_index=0; proxy_index<$container_proxy_length; proxy_index++))
+            do
+                local proxy_uid=$(jq -r  ".containers[$index].proxy[$proxy_index].uid" $CONFIG_PATH | tr -d '"')
+                local proxy_listen=$(jq -r  ".containers[$index].proxy[$proxy_index].listen_port" $CONFIG_PATH | tr -d '"')
+                local proxy_port=$(jq -r  ".containers[$index].proxy[$proxy_index].container_port" $CONFIG_PATH | tr -d '"')
+                container_proxy_port $container_name $proxy_uid $proxy_listen $proxy_port
+            done
             # Run commands
             local commands_length=$(jq ".containers[$index].commands | length" $CONFIG_PATH)
             for ((cmd_index=0; cmd_index<$commands_length; cmd_index++))
@@ -401,17 +432,13 @@ function parse_config_file() {
                 container_exec_script $container_name $container_distro "$cmd"
             done
             # Mount folders
-            for ((mount_index=0; cmd_index<$container_mounts_length; cmd_index++))
+            for ((mount_index=0; mount_index<$container_mounts_length; mount_index++))
             do
-                local container_mount_uid=$(jq -r  ".containers[$index].mounts[$mount_index].uid" $CONFIG_PATH | tr -d '"')
-                local container_mount_from=$(jq -r  ".containers[$index].mounts[$mount_index].from" $CONFIG_PATH | tr -d '"')
-                local container_mount_to=$(jq -r  ".containers[$index].mounts[$mount_index].to" $CONFIG_PATH | tr -d '"')
-                container_mount_path $container_name \
-                    $container_mount_uid \
-                    $container_mount_from \
-                    $container_mount_to
+                local mount_uid=$(jq -r  ".containers[$index].mounts[$mount_index].uid" $CONFIG_PATH | tr -d '"')
+                local mount_from=$(jq -r  ".containers[$index].mounts[$mount_index].from" $CONFIG_PATH | tr -d '"')
+                local mount_to=$(jq -r  ".containers[$index].mounts[$mount_index].to" $CONFIG_PATH | tr -d '"')
+                container_mount_path $container_name $mount_uid $mount_from $mount_to
             done
-
         fi
     done
 }

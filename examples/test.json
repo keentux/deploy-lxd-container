@@ -14,6 +14,17 @@
                     "to": "/home/devel/tmp"
                 }
             ],
+            "proxy": [
+                {
+                    "uid": "haproxy80",
+                    "listen_port": "80",
+                    "container_port": "80"
+                }, {
+                    "uid": "haproxy443",
+                    "listen_port": "443",
+                    "container_port": "443"
+                }
+            ],
             "packages": [
                 "openssh-server"
             ],

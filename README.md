@@ -41,6 +41,13 @@ example:
                     "to": "/path/to/mounted/folder"
                 }
             ],
+            "proxy": [
+                {
+                    "uid": "haproxy80",
+                    "listen_port": "80",
+                    "container_port": "80"
+                }
+            ],
             "commands": [
                 "03_start_ssh",
                 "05_create_user"
@@ -50,17 +57,21 @@ example:
 }
 ```
 
-* **containers**: list of containers to deploy
-  * **name**: cintaienr instance name, should be unique !
-  * **distro**: container OS Distribution
-  * **release**: container OS Release
-  * **arh**: container OS Architecture
-  * **storage**: lxc storage to use (default: default)
-  * **packages**: list of packages to insstall
-  * **mounts**: list of mount device JSON
-    * **uid**: uid of the device
-    * **from**: folder to mount in the container
-    * **to**:folder to create in the container
+* **containers**: List of containers to deploy
+  * **name**: Container instance name, should be unique !
+  * **distro**: Container OS Distribution
+  * **release**: Container OS Release
+  * **arh**: Container OS Architecture
+  * **storage**: Lxc storage to use (default: default)
+  * **packages**: List of packages to insstall
+  * **mounts**: List of mount device JSON
+    * **uid**: Uid of the device
+    * **from**: Folder to mount in the container
+    * **to**: Folder to create in the container
+  * **proxy**: List of forwarding port
+    * **uid**: Uid of the proxy device
+    * **listen_port**: Host port to forward
+    * **container_port**: Container port to forward 
   * **commands**: List of scripts to execute in the container deployed
 
 For list of potential container images see: <https://uk.lxd.images.canonical.com/>
