@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ROOT_PASSWORD="Sql_is_securized!10"
+ROOT_PASSWORD="PASSWORD_TO_CHANGE"
 
 case "$2" in
     $CONTAINER_DISTRO_SUSE)

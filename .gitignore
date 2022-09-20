@@ -1,0 +1,3 @@
+.vscode*
+.*.json
+tasks.d/[a-z]*

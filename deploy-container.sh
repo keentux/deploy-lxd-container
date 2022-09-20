@@ -32,7 +32,7 @@ unset FORCE
 unset INTERFACE
 
 DISTRO_REDHAT_BASED="RedHat"
-DISTRO_SUSE_BASED="Suse"
+DISTRO_SUSE_BASED="openSUSE"
 DISTRO_MANDRAKE_BASED="MANDRAKE"
 DISTRO_UBUNTU_BASED="Ubuntu"
 
@@ -456,14 +456,14 @@ function parse_config_file() {
 ###
 function check_lxd_installed() {
     local is_installed=1;
-    if [ -z $DISTRO_BASED ]; then 
+    if [[ -z "$DISTRO_BASED" ]]; then 
         echo_warning "Cannot check if tools are installed because of unknown distro"
     else
         case "$DISTRO_BASED" in
             "$DISTRO_UBUNTU_BASED")
                 [ $(dpkg-query -W -f='${Status}' nano 2>/dev/null | grep -c "ok installed") -eq 0 ] || is_installed=0
                 ;;
-            "$DISTRO_SUSE_BASED" | "$DISTRO_REDHAT_BASED")
+            "$DISTRO_SUSE_BASED"* | "$DISTRO_REDHAT_BASED")
                 rpm -q lxd > /dev/null 2>&1
                 [ $? -ne 0 ] && is_installed=0
                 ;;
