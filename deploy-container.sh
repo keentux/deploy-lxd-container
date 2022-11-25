@@ -390,6 +390,7 @@ function get_os_name() {
 function parse_config_file() {
     local result=0
     local prefix=$(jq ".prefix" $CONFIG_PATH | tr -d '"' )
+    [[ $prefix == "null" ]] && prefix=""
     local containers_length=$(jq ".containers | length" $CONFIG_PATH)
     for ((index=0; index<$containers_length; index++))
     do
